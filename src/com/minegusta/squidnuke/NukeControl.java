@@ -1,4 +1,4 @@
-package com.minegusta.squidnuke.Object;
+package com.minegusta.squidnuke;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
@@ -7,8 +7,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Squid;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-
-import com.minegusta.squidnuke.SquidNuke;
 
 public class NukeControl
 {
@@ -52,7 +50,7 @@ public class NukeControl
 
 	public void startTravel()
 	{
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(SquidNuke.instance, new TravelStage(this), 10, 10);
+		Bukkit.getScheduler().runTask(SquidNuke.instance, new TravelStage(this));
 	}
 
 	private void calculateNextCheckpoint()
@@ -62,12 +60,12 @@ public class NukeControl
 		{
 			case ASCENT:
 			{
-				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > overallTarget.getX() ? startPoint.getX() - 30 : startPoint.getX() + 30, 215, startPoint.getZ() > overallTarget.getZ() ? startPoint.getZ() - 30 : startPoint.getZ() + 30);
+				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > overallTarget.getX() ? startPoint.getX() - 5 : startPoint.getX() + 5, startPoint.getY() + 5, startPoint.getZ() > overallTarget.getZ() ? startPoint.getZ() - 5 : startPoint.getZ() + 5);
 				break;
 			}
 			case TRAVEL:
 			{
-				this.checkpoint = new Location(overallTarget.getWorld(), checkpoint.getX() > overallTarget.getX() ? overallTarget.getX() + 30 : overallTarget.getX() - 30, 215, checkpoint.getZ() > overallTarget.getZ() ? overallTarget.getZ() + 30 : overallTarget.getZ() - 30);
+				this.checkpoint = new Location(overallTarget.getWorld(), checkpoint.getX() > overallTarget.getX() ? overallTarget.getX() + 5 : overallTarget.getX() - 5, checkpoint.getY() > overallTarget.getY() ? checkpoint.getBlockY() - 5 : checkpoint.getY() + 5, checkpoint.getZ() > overallTarget.getZ() ? overallTarget.getZ() + 5 : overallTarget.getZ() - 5);
 				break;
 			}
 			case DECENT:
@@ -78,7 +76,7 @@ public class NukeControl
 		}
 	}
 
-	public void nuke(final boolean setFire, final boolean damageBlocks)
+	public static void nuke(final Squid squid, final boolean setFire, final boolean damageBlocks)
 	{
 		for(int i = 0; i < 60; i++)
 		{
@@ -91,7 +89,6 @@ public class NukeControl
 					nukeEffects(squid.getLocation(), 110 + k, 30 * k, k / 4, setFire, damageBlocks);
 				}
 			}, i);
-
 		}
 	}
 
@@ -143,33 +140,34 @@ public class NukeControl
 		@Override
 		public void run()
 		{
-			if(control.getSquid().getLocation().toVector().isInSphere(control.getCheckPoint().toVector(), 4))
+			if(control.getSquid().isDead()) return;
+			if(control.getSquid().getLocation().distance(control.getCheckPoint()) < 1)
 			{
-				stopTravelStage();
 				if(!control.getStage().equals(Stage.DECENT)) startNextTravelStage();
-				else control.nuke(true, true);
+				else
+				{
+					SquidNukeCommand.squids.remove(control.getSquid().getUniqueId());
+					NukeControl.nuke(control.getSquid(), true, true);
+				}
 			}
-			else go();
+			else
+			{
+				go();
+				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 5);
+			}
 		}
 
 		public void go()
 		{
-			Vector startPoint = control.getSquid().getLocation().toVector();
-			Vector direction = control.getCheckPoint().toVector().subtract(startPoint);
-			direction.multiply(3F);
+			if(control.getSquid().getLocation().getBlockY() > 256) control.getSquid().teleport(control.getCheckPoint());
+			Vector direction = control.getCheckPoint().toVector().subtract(control.getSquid().getLocation().toVector());
 			control.getSquid().setVelocity(direction);
-		}
-
-		public void stopTravelStage()
-		{
-			Bukkit.broadcastMessage("Stop travel.");
-			this.cancel();
 		}
 
 		public void startNextTravelStage()
 		{
 			control.calculateNextCheckpoint();
-			Bukkit.getScheduler().scheduleSyncRepeatingTask(SquidNuke.instance, new TravelStage(control), 10, 10);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 5);
 		}
 	}
 }

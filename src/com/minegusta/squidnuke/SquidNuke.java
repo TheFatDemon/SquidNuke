@@ -1,5 +1,8 @@
 package com.minegusta.squidnuke;
 
+import java.util.Set;
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -9,9 +12,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Squid;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.minegusta.squidnuke.Object.NukeControl;
+import com.google.common.collect.Sets;
 import com.minegusta.squidnuke.Utility.MiscUtility;
 
 public class SquidNuke extends JavaPlugin
@@ -24,10 +31,10 @@ public class SquidNuke extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
+		instance = this;
+
 		loadListeners();
 		loadCommands();
-
-		instance = this;
 
 		getLogger().info("Successfully enabled.");
 	}
@@ -43,7 +50,7 @@ public class SquidNuke extends JavaPlugin
 
 	public void loadListeners()
 	{
-		// TODO When needed.
+		// Todo.
 	}
 
 	public void loadCommands()
@@ -52,8 +59,15 @@ public class SquidNuke extends JavaPlugin
 	}
 }
 
-class SquidNukeCommand implements CommandExecutor
+class SquidNukeCommand implements CommandExecutor, Listener
 {
+	static Set<UUID> squids = Sets.newHashSet();
+
+	public SquidNukeCommand()
+	{
+		SquidNuke.instance.getServer().getPluginManager().registerEvents(this, SquidNuke.instance);
+	}
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
@@ -93,7 +107,18 @@ class SquidNukeCommand implements CommandExecutor
 			}
 			NukeControl control = new NukeControl(squid, player.getLocation(), target);
 			control.startTravel();
+			squids.add(squid.getUniqueId());
+			player.sendMessage(ChatColor.YELLOW + "Launch!");
+			return true;
 		}
 		return false;
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onSquidDeath(EntityDeathEvent event)
+	{
+		if(!squids.contains(event.getEntity().getUniqueId())) return;
+		squids.remove(event.getEntity().getUniqueId());
+		NukeControl.nuke((Squid) event.getEntity(), true, true);
 	}
 }
