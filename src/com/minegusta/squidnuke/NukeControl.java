@@ -1,9 +1,6 @@
 package com.minegusta.squidnuke;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Squid;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -76,9 +73,9 @@ public class NukeControl
 		}
 	}
 
-	public static void nuke(final Squid squid, final boolean setFire, final boolean damageBlocks)
+	public static void nuke(final Location target, final boolean setFire, final boolean damageBlocks)
 	{
-		for(int i = 0; i < 60; i++)
+		for(int i = 1; i < 60; i++)
 		{
 			final int k = i;
 			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
@@ -86,13 +83,13 @@ public class NukeControl
 				@Override
 				public void run()
 				{
-					nukeEffects(squid.getLocation(), 110 + k, 30 * k, k / 4, setFire, damageBlocks);
+					nukeEffects(target, 115 + (k * 6), 30 * k, (double) k / 4, setFire, damageBlocks);
 				}
 			}, i);
 		}
 	}
 
-	private static void nukeEffects(Location target, int range, int particles, int offSetY, boolean setFire, boolean damageBlocks)
+	private static void nukeEffects(Location target, int range, int particles, double offSetY, boolean setFire, boolean damageBlocks)
 	{
 		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 7F, setFire, damageBlocks);
 		target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 1F, 1F);
@@ -141,13 +138,15 @@ public class NukeControl
 		public void run()
 		{
 			if(control.getSquid().isDead()) return;
-			if(control.getSquid().getLocation().distance(control.getCheckPoint()) < 1)
+			if(control.getSquid().getLocation().distance(control.getCheckPoint()) < 4)
 			{
 				if(!control.getStage().equals(Stage.DECENT)) startNextTravelStage();
 				else
 				{
+					OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(SquidNukeCommand.squids.get(control.getSquid().getUniqueId()));
 					SquidNukeCommand.squids.remove(control.getSquid().getUniqueId());
-					NukeControl.nuke(control.getSquid(), true, true);
+					NukeControl.nuke(control.getSquid().getLocation(), true, true);
+					if(offlinePlayer.isOnline()) offlinePlayer.getPlayer().sendMessage(ChatColor.YELLOW + "The nuke has detonated on target.");
 				}
 			}
 			else
