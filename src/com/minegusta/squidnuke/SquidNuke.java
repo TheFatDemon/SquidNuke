@@ -111,8 +111,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 
 	private void launchNuke(final Player owner, final Location launch, final Location target)
 	{
-		launch.getWorld().playSound(launch, Sound.ENDERDRAGON_DEATH, 2F, 2F);
-		target.getWorld().playSound(target, Sound.ENDERDRAGON_DEATH, 2F, 2F);
+		warningSiren(launch, target);
 		for(int i = 6; i > 0; i--)
 		{
 			final int count = i - 1;
@@ -144,6 +143,22 @@ class SquidNukeCommand implements CommandExecutor, Listener
 		}
 	}
 
+	private static void warningSiren(final Location launch, final Location target)
+	{
+		for(int i = 0; i < 4; i++)
+		{
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					launch.getWorld().playSound(launch, Sound.AMBIENCE_CAVE, 2F, 2F);
+					target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 2F, 2F);
+				}
+			}, i * 30);
+		}
+	}
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSquidDeath(EntityDeathEvent event)
 	{
@@ -151,6 +166,6 @@ class SquidNukeCommand implements CommandExecutor, Listener
 		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(squids.get(event.getEntity().getUniqueId()));
 		squids.remove(event.getEntity().getUniqueId());
 		NukeControl.nuke(event.getEntity().getLocation(), true, true);
-		if(offlinePlayer.isOnline()) offlinePlayer.getPlayer().sendMessage(ChatColor.YELLOW + "The nuke detonated before it reached it's target.");
+		if(offlinePlayer.isOnline()) offlinePlayer.getPlayer().sendMessage(ChatColor.YELLOW + "The nuke has detonated off-target.");
 	}
 }

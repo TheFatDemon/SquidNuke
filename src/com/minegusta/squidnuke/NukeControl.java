@@ -57,12 +57,12 @@ public class NukeControl
 		{
 			case ASCENT:
 			{
-				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > overallTarget.getX() ? startPoint.getX() - 10 : startPoint.getX() + 10, startPoint.getY() + 10, startPoint.getZ() > overallTarget.getZ() ? startPoint.getZ() - 10 : startPoint.getZ() + 10);
+				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > overallTarget.getX() ? startPoint.getX() - 10 : startPoint.getX() + 10, startPoint.getY() + 50 > 248 ? 248 : startPoint.getY() + 50, startPoint.getZ() > overallTarget.getZ() ? startPoint.getZ() - 10 : startPoint.getZ() + 10);
 				break;
 			}
 			case TRAVEL:
 			{
-				this.checkpoint = new Location(overallTarget.getWorld(), checkpoint.getX() > overallTarget.getX() ? overallTarget.getX() + 10 : overallTarget.getX() - 10, checkpoint.getY() > overallTarget.getY() ? checkpoint.getBlockY() : checkpoint.getY() + 50 > 248 ? 248 : checkpoint.getY() + 50, checkpoint.getZ() > overallTarget.getZ() ? overallTarget.getZ() + 10 : overallTarget.getZ() - 10);
+				this.checkpoint = new Location(overallTarget.getWorld(), checkpoint.getX() > overallTarget.getX() ? overallTarget.getX() + 10 : overallTarget.getX() - 10, checkpoint.getY() + 50 > 248 ? 248 : checkpoint.getY() + 50, checkpoint.getZ() > overallTarget.getZ() ? overallTarget.getZ() + 10 : overallTarget.getZ() - 10);
 				break;
 			}
 			case DECENT:
@@ -75,7 +75,7 @@ public class NukeControl
 
 	public static void nuke(final Location target, final boolean setFire, final boolean damageBlocks)
 	{
-		for(int i = 1; i < 60; i++)
+		for(int i = 1; i < 75; i++)
 		{
 			final int k = i;
 			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
@@ -83,20 +83,20 @@ public class NukeControl
 				@Override
 				public void run()
 				{
-					nukeEffects(target, 115 + (k * 6), 30 * k, (double) k / 4, setFire, damageBlocks);
+					nukeEffects(target, 115 + (k * 6), 30 * k, (float) k / 2, setFire, damageBlocks);
 				}
 			}, i);
 		}
 	}
 
-	private static void nukeEffects(Location target, int range, int particles, double offSetY, boolean setFire, boolean damageBlocks)
+	private static void nukeEffects(Location target, int range, int particles, float offSetY, boolean setFire, boolean damageBlocks)
 	{
-		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 7F, setFire, damageBlocks);
+		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 15F, setFire, damageBlocks);
 		target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 1F, 1F);
-		target.getWorld().spigot().playEffect(target, Effect.CLOUD, 1, 1, 3F, 0F, 3F, 1F, particles, range);
-		target.getWorld().spigot().playEffect(target, Effect.LAVA_POP, 1, 1, 0.4F, 10F, 0.4F, 1F, particles, range);
-		target.getWorld().spigot().playEffect(target, Effect.SMOKE, 1, 1, 0.4F, 10F, 0.4F, 1F, particles, range);
-		target.getWorld().spigot().playEffect(target, Effect.FLAME, 1, 1, 0.4F, 10F, 0.4F, 1F, particles, range);
+		target.getWorld().spigot().playEffect(target, Effect.CLOUD, 1, 1, 0F, 3F + offSetY, 3F, 1F, particles, range);
+		target.getWorld().spigot().playEffect(target, Effect.LAVA_POP, 1, 1, 0F, 3F + offSetY, 0F, 1F, particles, range);
+		target.getWorld().spigot().playEffect(target, Effect.SMOKE, 1, 1, 0F, 3F + offSetY, 0F, 1F, particles, range);
+		target.getWorld().spigot().playEffect(target, Effect.FLAME, 1, 1, 0F, 3F + offSetY, 0F + offSetY, 1F, particles, range);
 	}
 
 	public enum Stage
@@ -146,7 +146,7 @@ public class NukeControl
 					OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(SquidNukeCommand.squids.get(control.getSquid().getUniqueId()));
 					SquidNukeCommand.squids.remove(control.getSquid().getUniqueId());
 					NukeControl.nuke(control.getSquid().getLocation(), true, true);
-					if(offlinePlayer.isOnline()) offlinePlayer.getPlayer().sendMessage(ChatColor.YELLOW + "The nuke has detonated on target.");
+					if(offlinePlayer.isOnline()) offlinePlayer.getPlayer().sendMessage(ChatColor.YELLOW + "The nuke has detonated on-target.");
 				}
 			}
 			else
