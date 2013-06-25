@@ -1,7 +1,9 @@
 package com.minegusta.squidnuke.Object;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Squid;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -56,12 +58,56 @@ public class NukeControl
 	private void calculateNextCheckpoint()
 	{
 		this.stage = stage.getNext();
-		// TODO
+		switch(stage)
+		{
+			case ASCENT:
+			{
+				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > overallTarget.getX() ? startPoint.getX() - 30 : startPoint.getX() + 30, 215, startPoint.getZ() > overallTarget.getZ() ? startPoint.getZ() - 30 : startPoint.getZ() + 30);
+				break;
+			}
+			case TRAVEL:
+			{
+				this.checkpoint = new Location(overallTarget.getWorld(), checkpoint.getX() > overallTarget.getX() ? overallTarget.getX() + 30 : overallTarget.getX() - 30, 215, checkpoint.getZ() > overallTarget.getZ() ? overallTarget.getZ() + 30 : overallTarget.getZ() - 30);
+				break;
+			}
+			case DECENT:
+			{
+				this.checkpoint = new Location(overallTarget.getWorld(), overallTarget.getX(), overallTarget.getY(), overallTarget.getZ());
+				break;
+			}
+		}
+	}
+
+	public void nuke(final boolean setFire, final boolean damageBlocks)
+	{
+		for(int i = 0; i < 60; i++)
+		{
+			final int k = i;
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					nukeEffects(squid.getLocation(), 110 + k, 30 * k, k / 4, setFire, damageBlocks);
+				}
+			}, i);
+
+		}
+	}
+
+	private static void nukeEffects(Location target, int range, int particles, int offSetY, boolean setFire, boolean damageBlocks)
+	{
+		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 7F, setFire, damageBlocks);
+		target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 1F, 1F);
+		target.getWorld().spigot().playEffect(target, Effect.CLOUD, 1, 1, 3F, 0F, 3F, 1F, particles, range);
+		target.getWorld().spigot().playEffect(target, Effect.LAVA_POP, 1, 1, 0.4F, 10F, 0.4F, 1F, particles, range);
+		target.getWorld().spigot().playEffect(target, Effect.SMOKE, 1, 1, 0.4F, 10F, 0.4F, 1F, particles, range);
+		target.getWorld().spigot().playEffect(target, Effect.FLAME, 1, 1, 0.4F, 10F, 0.4F, 1F, particles, range);
 	}
 
 	public enum Stage
 	{
-		LAUNCH(0), ASCENT(1), TRAVEL(2), DECENT(3), HIT(4);
+		LAUNCH(0), ASCENT(1), TRAVEL(2), DECENT(3);
 
 		private int order;
 
@@ -100,7 +146,8 @@ public class NukeControl
 			if(control.getSquid().getLocation().toVector().isInSphere(control.getCheckPoint().toVector(), 4))
 			{
 				stopTravelStage();
-				if(!control.getStage().equals(Stage.HIT)) startNextTravelStage();
+				if(!control.getStage().equals(Stage.DECENT)) startNextTravelStage();
+				else control.nuke(true, true);
 			}
 			else go();
 		}

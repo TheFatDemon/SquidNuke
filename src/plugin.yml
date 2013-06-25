@@ -4,4 +4,4 @@ version: 1.0-SNAPSHOT
 authors: [HmmmQuestionMark, janie177]
 commands:
     squidnuke:
-        usage: /squidnuke <x> <y> <z>
+        usage: /squidnuke <x> <z>
