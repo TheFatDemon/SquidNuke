@@ -1,7 +1,12 @@
 package com.minegusta.squidnuke.Object;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Squid;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
+import com.minegusta.squidnuke.SquidNuke;
 
 public class NukeControl
 {
@@ -16,6 +21,11 @@ public class NukeControl
 		this.startPoint = launchPoint;
 		this.overallTarget = overallTarget;
 		calculateNextCheckpoint();
+	}
+
+	public Squid getSquid()
+	{
+		return this.squid;
 	}
 
 	public Location getStartPoint()
@@ -35,49 +45,84 @@ public class NukeControl
 
 	public Stage getStage()
 	{
-		return stage;
+		return this.stage;
 	}
 
-	public void travel()
+	public void startTravel()
 	{
-
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(SquidNuke.instance, new TravelStage(this), 10, 10);
 	}
 
 	private void calculateNextCheckpoint()
 	{
-
+		this.stage = stage.getNext();
+		// TODO
 	}
 
 	public enum Stage
 	{
-		LAUNCH, ASCENT, TRAVEL, DECENT, HIT;
+		LAUNCH(0), ASCENT(1), TRAVEL(2), DECENT(3), HIT(4);
+
+		private int order;
+
+		private Stage(int order)
+		{
+			this.order = order;
+		}
+
+		public Stage getNext()
+		{
+			return get(this.order + 1);
+		}
+
+		private static Stage get(int order)
+		{
+			for(Stage stage : Stage.values())
+			{
+				if(stage.order == order) return stage;
+			}
+			return null;
+		}
 	}
 
-	public static class TravelStage implements Runnable
+	public static class TravelStage extends BukkitRunnable
 	{
-		private Squid watching;
-		private Location checkpoint;
+		private NukeControl control;
 
-		public TravelStage(Squid squid, Location checkpoint)
+		public TravelStage(NukeControl control)
 		{
-			this.watching = squid;
-			this.checkpoint = checkpoint;
+			this.control = control;
 		}
 
 		@Override
 		public void run()
 		{
+			if(control.getSquid().getLocation().toVector().isInSphere(control.getCheckPoint().toVector(), 4))
+			{
+				stopTravelStage();
+				if(!control.getStage().equals(Stage.HIT)) startNextTravelStage();
+			}
+			else go();
+		}
 
+		public void go()
+		{
+			Vector startPoint = control.getSquid().getLocation().toVector();
+			Vector direction = control.getCheckPoint().toVector().subtract(startPoint);
+			direction.multiply(3F);
+			control.getSquid().setVelocity(direction);
 		}
 
 		public void stopTravelStage()
 		{
-
+			Bukkit.broadcastMessage("Stop travel.");
+			this.cancel();
 		}
 
 		public void startNextTravelStage()
 		{
-
+			control.calculateNextCheckpoint();
+			Bukkit.getScheduler().scheduleSyncRepeatingTask(SquidNuke.instance, new TravelStage(control), 10, 10);
 		}
 	}
 }

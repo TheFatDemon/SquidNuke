@@ -11,6 +11,8 @@ import com.minegusta.squidnuke.Utility.MiscUtility;
 
 public class SquidNuke extends JavaPlugin
 {
+	public static SquidNuke instance;
+
 	/**
 	 * The Bukkit enable method.
 	 */
@@ -19,6 +21,8 @@ public class SquidNuke extends JavaPlugin
 	{
 		loadListeners();
 		loadCommands();
+
+		instance = this;
 
 		getLogger().info("Successfully enabled.");
 	}
