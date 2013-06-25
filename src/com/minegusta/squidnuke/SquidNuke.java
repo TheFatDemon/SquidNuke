@@ -3,6 +3,7 @@ package com.minegusta.squidnuke;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -71,17 +72,26 @@ class SquidNukeCommand implements CommandExecutor, Listener
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
-		if(command.getName().equalsIgnoreCase("squidnuke") && args.length == 2 && sender instanceof Player)
+		if(command.getName().equalsIgnoreCase("squidnuke") && (args.length == 1 || args.length == 2) && sender instanceof Player)
 		{
 			Player player = (Player) sender;
-			if(!MiscUtility.isInt(args[0]) || !MiscUtility.isInt(args[1]))
+			int X, Z;
+			if(args.length == 2 && MiscUtility.isInt(args[0]) && MiscUtility.isInt(args[1]))
+			{
+				X = Integer.parseInt(args[0]);
+				Z = Integer.parseInt(args[1]);
+			}
+			else if(args.length == 1 && Bukkit.getPlayer(args[0]) != null)
+			{
+				X = Bukkit.getPlayer(args[0]).getLocation().getBlockX();
+				Z = Bukkit.getPlayer(args[0]).getLocation().getBlockZ();
+			}
+			else
 			{
 				player.sendMessage(ChatColor.RED + "Wrong syntax.");
 				return false;
 			}
 
-			// Define variables.
-			int X = Integer.parseInt(args[0]), Z = Integer.parseInt(args[1]);
 			Location target = new Location(player.getWorld(), X, player.getWorld().getHighestBlockYAt(X, Z), Z);
 
 			// Check conditions.
