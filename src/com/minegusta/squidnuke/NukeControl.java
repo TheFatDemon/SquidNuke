@@ -153,7 +153,7 @@ public class NukeControl
 			else
 			{
 				go();
-				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 5);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 1);
 			}
 		}
 
@@ -167,7 +167,7 @@ public class NukeControl
 		public void startNextTravelStage()
 		{
 			control.calculateNextCheckpoint();
-			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 5);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 1);
 		}
 	}
 }
