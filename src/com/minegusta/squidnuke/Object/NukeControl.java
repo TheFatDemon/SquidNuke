@@ -1,4 +1,4 @@
-package com.minegusta.squidnuke.Enum;
+package com.minegusta.squidnuke.Object;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Squid;
