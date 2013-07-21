@@ -91,7 +91,7 @@ public class NukeControl
 
 	private static void nukeEffects(Location target, int range, int particles, float offSetY, boolean setFire, boolean damageBlocks)
 	{
-		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 15F, setFire, damageBlocks);
+		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 6F, setFire, damageBlocks);
 		target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 1F, 1F);
 		target.getWorld().spigot().playEffect(target, Effect.CLOUD, 1, 1, 0F, 3F + offSetY, 3F, 1F, particles, range);
 		target.getWorld().spigot().playEffect(target, Effect.LAVA_POP, 1, 1, 0F, 3F + offSetY, 0F, 1F, particles, range);
