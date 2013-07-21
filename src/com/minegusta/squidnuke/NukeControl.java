@@ -152,6 +152,7 @@ public class NukeControl
 			else
 			{
 				go();
+				if(!control.getStage().equals(Stage.DECENT)) control.getSquid().setNoDamageTicks(2);
 				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 1);
 			}
 		}
