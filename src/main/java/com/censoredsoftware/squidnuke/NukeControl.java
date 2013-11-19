@@ -50,7 +50,7 @@ public class NukeControl
 
 	public void startTravel()
 	{
-		Bukkit.getScheduler().runTask(SquidNuke.instance, new TravelStage(this));
+		Bukkit.getScheduler().runTask(SquidNuke.PLUGIN, new TravelStage(this));
 	}
 
 	private void calculateNextCheckpoint()
@@ -76,25 +76,25 @@ public class NukeControl
 		}
 	}
 
-	public static void nuke(final Location target, final boolean setFire, final boolean damageBlocks)
+	public static void nuke(final Location target, final boolean damage)
 	{
 		for(int i = 1; i < 25; i++)
 		{
 			final int k = i;
-			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					nukeEffects(target, 115 + (k * 6), 30 * k, (float) k / 2, setFire, damageBlocks);
+					nukeEffects(target, 115 + (k * 6), 30 * k, (float) k / 2, damage);
 				}
 			}, i);
 		}
 	}
 
-	private static void nukeEffects(Location target, int range, int particles, float offSetY, boolean setFire, boolean damageBlocks)
+	private static void nukeEffects(Location target, int range, int particles, float offSetY, boolean damage)
 	{
-		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 6F, setFire, damageBlocks);
+		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 6F, damage, damage);
 		target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 1F, 1F);
 		target.getWorld().spigot().playEffect(target, Effect.CLOUD, 1, 1, 0F, 3F + offSetY, 3F, 1F, particles, range);
 		target.getWorld().spigot().playEffect(target, Effect.LAVA_POP, 1, 1, 0F, 3F + offSetY, 0F, 1F, particles, range);
@@ -146,8 +146,8 @@ public class NukeControl
 				if(!control.getStage().equals(Stage.DECENT)) startNextTravelStage();
 				else
 				{
-					SquidNukeCommand.squids.remove(control.getNuke().getUniqueId());
-					NukeControl.nuke(control.getNuke().getLocation(), false, false);
+					SquidNuke.squids.remove(control.getNuke().getUniqueId());
+					NukeControl.nuke(control.getNuke().getLocation(), SquidNuke.damage);
 					control.getNuke().remove();
 				}
 			}
@@ -155,7 +155,7 @@ public class NukeControl
 			{
 				go();
 				if(!control.getStage().equals(Stage.DECENT)) control.getNuke().setNoDamageTicks(2);
-				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 1);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new TravelStage(control), 1);
 			}
 		}
 
@@ -169,7 +169,7 @@ public class NukeControl
 		public void startNextTravelStage()
 		{
 			control.calculateNextCheckpoint();
-			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 1);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new TravelStage(control), 1);
 		}
 	}
 }

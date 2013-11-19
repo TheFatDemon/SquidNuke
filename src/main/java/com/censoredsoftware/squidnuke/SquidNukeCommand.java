@@ -1,6 +1,5 @@
 package com.censoredsoftware.squidnuke;
 
-import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,21 +11,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
-
-import java.util.Map;
-import java.util.UUID;
 
 class SquidNukeCommand implements CommandExecutor, Listener
 {
-	static Map<UUID, String> squids = Maps.newHashMap();
-
 	public SquidNukeCommand()
 	{
-		SquidNuke.instance.getServer().getPluginManager().registerEvents(this, SquidNuke.instance);
+		SquidNuke.PLUGIN.getServer().getPluginManager().registerEvents(this, SquidNuke.PLUGIN);
 	}
 
 	@Override
@@ -70,7 +61,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 			if(exists instanceof LivingEntity)
 			{
 				if(exists.equals(player) || exists.getLocation().distance(target) < 30 || exists.getLocation().distance(target) > 100) continue;
-				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
+				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new Runnable()
 				{
 					@Override
 					public void run()
@@ -104,7 +95,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 		for(int i = 6; i > 0; i--)
 		{
 			final int count = i - 1;
-			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new Runnable()
 			{
 				@Override
 				public void run()
@@ -117,7 +108,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 						squid.setCustomNameVisible(true);
 						NukeControl control = new NukeControl(squid, launch, target);
 						control.startTravel();
-						squids.put(squid.getUniqueId(), owner.getName());
+						SquidNuke.squids.put(squid.getUniqueId(), owner.getName());
 						owner.sendMessage(ChatColor.DARK_RED + "☣");
 					}
 					else if(alert) owner.sendMessage(ChatColor.GREEN + "" + count + "...");
@@ -130,7 +121,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 	{
 		for(int i = 0; i < 4; i++)
 		{
-			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
+			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new Runnable()
 			{
 				@Override
 				public void run()
@@ -140,13 +131,5 @@ class SquidNukeCommand implements CommandExecutor, Listener
 				}
 			}, i * 30);
 		}
-	}
-
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onSquidDeath(EntityDeathEvent event)
-	{
-		if(!squids.containsKey(event.getEntity().getUniqueId())) return;
-		squids.remove(event.getEntity().getUniqueId());
-		NukeControl.nuke(event.getEntity().getLocation(), true, true);
 	}
 }
