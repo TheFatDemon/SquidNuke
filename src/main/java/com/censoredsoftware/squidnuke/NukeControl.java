@@ -78,7 +78,7 @@ public class NukeControl
 
 	public static void nuke(final Location target, final boolean setFire, final boolean damageBlocks)
 	{
-		for(int i = 1; i < 75; i++)
+		for(int i = 1; i < 35; i++)
 		{
 			final int k = i;
 			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
@@ -148,6 +148,7 @@ public class NukeControl
 				{
 					SquidNukeCommand.squids.remove(control.getNuke().getUniqueId());
 					NukeControl.nuke(control.getNuke().getLocation(), false, false);
+					control.getNuke().remove();
 				}
 			}
 			else
