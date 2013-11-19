@@ -14,7 +14,7 @@ import java.util.UUID;
 public class SquidNuke extends JavaPlugin implements Listener
 {
 	public static SquidNuke PLUGIN;
-	public static boolean damage;
+	public static boolean blockDamage, playerDamage;
 	protected static Map<UUID, String> squids = Maps.newHashMap();
 
 	/**
@@ -24,7 +24,8 @@ public class SquidNuke extends JavaPlugin implements Listener
 	public void onEnable()
 	{
 		PLUGIN = this;
-		damage = Configs.getSettingBoolean("do_damage");
+		blockDamage = Configs.getSettingBoolean("damage.block");
+		playerDamage = Configs.getSettingBoolean("damage.player");
 
 		loadListeners();
 		loadCommands();
@@ -56,6 +57,6 @@ public class SquidNuke extends JavaPlugin implements Listener
 	{
 		if(!squids.containsKey(event.getEntity().getUniqueId())) return;
 		squids.remove(event.getEntity().getUniqueId());
-		NukeControl.nuke(event.getEntity().getLocation(), damage);
+		NukeControl.nuke(event.getEntity().getLocation(), blockDamage, playerDamage);
 	}
 }

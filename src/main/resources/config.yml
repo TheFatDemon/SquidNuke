@@ -1,2 +1,4 @@
 # default config
-do_damage: false
+damage:
+    block: false
+    player: false

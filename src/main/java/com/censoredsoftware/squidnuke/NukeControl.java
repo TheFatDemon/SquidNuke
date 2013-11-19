@@ -1,9 +1,6 @@
 package com.censoredsoftware.squidnuke;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -11,15 +8,17 @@ import org.bukkit.util.Vector;
 public class NukeControl
 {
 	private LivingEntity squid;
+	private OfflinePlayer target;
 	private Stage stage;
-	private Location startPoint, checkpoint, overallTarget;
+	private Location startPoint, checkpoint, targetLocation;
 
-	public NukeControl(LivingEntity squid, Location launchPoint, Location overallTarget)
+	public NukeControl(LivingEntity squid, Location launchPoint, OfflinePlayer target, Location targetLocation)
 	{
 		this.squid = squid;
-		this.stage = Stage.LAUNCH;
-		this.startPoint = launchPoint;
-		this.overallTarget = overallTarget;
+		this.target = target;
+		stage = Stage.LAUNCH;
+		startPoint = launchPoint;
+		this.targetLocation = targetLocation;
 		calculateNextCheckpoint();
 	}
 
@@ -38,9 +37,9 @@ public class NukeControl
 		return checkpoint;
 	}
 
-	public Location getOverallTarget()
+	public OfflinePlayer getTarget()
 	{
-		return overallTarget;
+		return target;
 	}
 
 	public Stage getStage()
@@ -56,27 +55,28 @@ public class NukeControl
 	private void calculateNextCheckpoint()
 	{
 		this.stage = stage.getNext();
+		if(target.isOnline()) targetLocation = target.getPlayer().getLocation();
 		switch(stage)
 		{
 			case ASCENT:
 			{
-				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > overallTarget.getX() ? startPoint.getX() - 10 : startPoint.getX() + 10, startPoint.getY() + 50 > 248 ? 248 : startPoint.getY() + 50, startPoint.getZ() > overallTarget.getZ() ? startPoint.getZ() - 10 : startPoint.getZ() + 10);
+				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > targetLocation.getX() ? startPoint.getX() - 10 : startPoint.getX() + 10, startPoint.getY() + 50 > 248 ? 248 : startPoint.getY() + 50, startPoint.getZ() > targetLocation.getZ() ? startPoint.getZ() - 10 : startPoint.getZ() + 10);
 				break;
 			}
 			case TRAVEL:
 			{
-				this.checkpoint = new Location(overallTarget.getWorld(), checkpoint.getX() > overallTarget.getX() ? overallTarget.getX() + 10 : overallTarget.getX() - 10, checkpoint.getY() + 50 > 248 ? 248 : checkpoint.getY() + 50, checkpoint.getZ() > overallTarget.getZ() ? overallTarget.getZ() + 10 : overallTarget.getZ() - 10);
+				this.checkpoint = new Location(targetLocation.getWorld(), checkpoint.getX() > targetLocation.getX() ? targetLocation.getX() + 10 : targetLocation.getX() - 10, checkpoint.getY() + 50 > 248 ? 248 : checkpoint.getY() + 50, checkpoint.getZ() > targetLocation.getZ() ? targetLocation.getZ() + 10 : targetLocation.getZ() - 10);
 				break;
 			}
 			case DECENT:
 			{
-				this.checkpoint = new Location(overallTarget.getWorld(), overallTarget.getX(), overallTarget.getY(), overallTarget.getZ());
+				this.checkpoint = new Location(targetLocation.getWorld(), targetLocation.getX(), targetLocation.getY(), targetLocation.getZ());
 				break;
 			}
 		}
 	}
 
-	public static void nuke(final Location target, final boolean damage)
+	public static void nuke(final Location target, final boolean block, final boolean player)
 	{
 		for(int i = 1; i < 25; i++)
 		{
@@ -86,15 +86,21 @@ public class NukeControl
 				@Override
 				public void run()
 				{
-					nukeEffects(target, 115 + (k * 6), 30 * k, (float) k / 2, damage);
+					nukeEffects(target, 115 + (k * 6), 30 * k, (float) k / 2, block, player);
 				}
 			}, i);
 		}
 	}
 
-	private static void nukeEffects(Location target, int range, int particles, float offSetY, boolean damage)
+	private static void nukeEffects(Location target, int range, int particles, float offSetY, boolean block, boolean player)
 	{
-		target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 6F, damage, damage);
+
+		if(!player) target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 6F, block, block);
+		else
+		{
+			target.getWorld().spigot().playEffect(target, Effect.EXPLOSION_HUGE);
+			target.getWorld().playSound(target, Sound.EXPLODE, 1F, 1F);
+		}
 		target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 1F, 1F);
 		target.getWorld().spigot().playEffect(target, Effect.CLOUD, 1, 1, 0F, 3F + offSetY, 3F, 1F, particles, range);
 		target.getWorld().spigot().playEffect(target, Effect.LAVA_POP, 1, 1, 0F, 3F + offSetY, 0F, 1F, particles, range);
@@ -147,7 +153,7 @@ public class NukeControl
 				else
 				{
 					SquidNuke.squids.remove(control.getNuke().getUniqueId());
-					NukeControl.nuke(control.getNuke().getLocation(), SquidNuke.damage);
+					NukeControl.nuke(control.getNuke().getLocation(), SquidNuke.blockDamage, SquidNuke.playerDamage);
 					control.getNuke().remove();
 				}
 			}
