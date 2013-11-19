@@ -111,9 +111,10 @@ class SquidNukeCommand implements CommandExecutor, Listener
 				{
 					if(count == 0)
 					{
-
 						LivingEntity squid = (LivingEntity) launch.getWorld().spawnEntity(launch, type);
 						squid.setNoDamageTicks(3);
+						squid.setCustomName("Nuke");
+						squid.setCustomNameVisible(true);
 						NukeControl control = new NukeControl(squid, launch, target);
 						control.startTravel();
 						squids.put(squid.getUniqueId(), owner.getName());
