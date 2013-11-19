@@ -1,7 +1,0 @@
-name: SquidNuke
-main: com.minegusta.squidnuke.SquidNuke
-version: 1.0-SNAPSHOT
-authors: [HmmmQuestionMark, janie177]
-commands:
-    squidnuke:
-        usage: /squidnuke <player>

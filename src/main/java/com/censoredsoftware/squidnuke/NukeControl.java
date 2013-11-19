@@ -1,17 +1,20 @@
-package com.minegusta.squidnuke;
+package com.censoredsoftware.squidnuke;
 
-import org.bukkit.*;
-import org.bukkit.entity.Squid;
+import org.bukkit.Bukkit;
+import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public class NukeControl
 {
-	private Squid squid;
+	private LivingEntity squid;
 	private Stage stage;
 	private Location startPoint, checkpoint, overallTarget;
 
-	public NukeControl(Squid squid, Location launchPoint, Location overallTarget)
+	public NukeControl(LivingEntity squid, Location launchPoint, Location overallTarget)
 	{
 		this.squid = squid;
 		this.stage = Stage.LAUNCH;
@@ -20,7 +23,7 @@ public class NukeControl
 		calculateNextCheckpoint();
 	}
 
-	public Squid getSquid()
+	public LivingEntity getNuke()
 	{
 		return this.squid;
 	}
@@ -137,31 +140,29 @@ public class NukeControl
 		@Override
 		public void run()
 		{
-			if(control.getSquid().isDead()) return;
-			if(control.getSquid().getLocation().distance(control.getCheckPoint()) < 4)
+			if(control.getNuke().isDead()) return;
+			if(control.getNuke().getLocation().distance(control.getCheckPoint()) < 4)
 			{
 				if(!control.getStage().equals(Stage.DECENT)) startNextTravelStage();
 				else
 				{
-					OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(SquidNukeCommand.squids.get(control.getSquid().getUniqueId()));
-					SquidNukeCommand.squids.remove(control.getSquid().getUniqueId());
-					NukeControl.nuke(control.getSquid().getLocation(), true, true);
-					if(offlinePlayer.isOnline()) offlinePlayer.getPlayer().sendMessage(ChatColor.YELLOW + "The nuke has detonated on-target.");
+					SquidNukeCommand.squids.remove(control.getNuke().getUniqueId());
+					NukeControl.nuke(control.getNuke().getLocation(), false, false);
 				}
 			}
 			else
 			{
 				go();
-				if(!control.getStage().equals(Stage.DECENT)) control.getSquid().setNoDamageTicks(2);
+				if(!control.getStage().equals(Stage.DECENT)) control.getNuke().setNoDamageTicks(2);
 				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new TravelStage(control), 1);
 			}
 		}
 
 		public void go()
 		{
-			if(control.getSquid().getLocation().getBlockY() > 256) control.getSquid().teleport(control.getCheckPoint());
-			Vector direction = control.getCheckPoint().toVector().subtract(control.getSquid().getLocation().toVector());
-			control.getSquid().setVelocity(direction);
+			if(control.getNuke().getLocation().getBlockY() > 256) control.getNuke().teleport(control.getCheckPoint());
+			Vector direction = control.getCheckPoint().toVector().subtract(control.getNuke().getLocation().toVector());
+			control.getNuke().setVelocity(direction);
 		}
 
 		public void startNextTravelStage()

@@ -1,0 +1,11 @@
+name: SquidNuke
+main: com.censoredsoftware.squidnuke.SquidNuke
+version: ${project.version}
+authors: [HmmmQuestionMark]
+commands:
+    squidnuke:
+        usage: /squidnuke <player> [type]
+        permission: squidnuke.nuke
+permissions:
+    squidnuke.nuke:
+        default: op

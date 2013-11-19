@@ -1,60 +1,24 @@
-package com.minegusta.squidnuke;
+package com.censoredsoftware.squidnuke;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import org.bukkit.*;
+import com.google.common.collect.Maps;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-public class SquidNuke extends JavaPlugin
-{
-	public static SquidNuke instance;
-
-	/**
-	 * The Bukkit enable method.
-	 */
-	@Override
-	public void onEnable()
-	{
-		instance = this;
-
-		loadListeners();
-		loadCommands();
-
-		getLogger().info("Successfully enabled.");
-	}
-
-	/**
-	 * The Bukkit disable method.
-	 */
-	@Override
-	public void onDisable()
-	{
-		getLogger().info("Successfully disabled.");
-	}
-
-	public void loadListeners()
-	{
-		// Todo.
-	}
-
-	public void loadCommands()
-	{
-		getCommand("squidnuke").setExecutor(new SquidNukeCommand());
-	}
-}
+import java.util.Map;
+import java.util.UUID;
 
 class SquidNukeCommand implements CommandExecutor, Listener
 {
@@ -68,17 +32,36 @@ class SquidNukeCommand implements CommandExecutor, Listener
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
-		Set<String> nukeKeyHolders = Sets.newHashSet("HmmmQuestionMark", "LordKuso", "scarfacehd2", "_Alex");
-		if(command.getName().equalsIgnoreCase("squidnuke") && (args.length == 1 || args.length == 2) && sender instanceof Player && nukeKeyHolders.contains(sender.getName()))
+		if(command.getName().equalsIgnoreCase("squidnuke") && (args.length == 1 || args.length == 2) && sender instanceof Player && sender.hasPermission("squidnuke.nuke"))
 		{
+			String target = args[0];
+			EntityType nukeType;
+			if(args.length == 1) nukeType = EntityType.SQUID;
+			else
+			{
+				try
+				{
+					nukeType = EntityType.valueOf(args[1].toUpperCase());
+				}
+				catch(Throwable thrown)
+				{
+					nukeType = EntityType.SQUID;
+				}
+			}
 			Player player = (Player) sender;
-			if(args.length == 1 && args[0].equals("me")) return nukePlayer(player);
-			else if(args.length == 1 && Bukkit.getPlayer(args[0]) != null) return nukePlayer(Bukkit.getPlayer(args[0]));
+			if(target.equalsIgnoreCase("me")) return nukePlayer(player, nukeType);
+			else if(target.equals("*"))
+			{
+				for(Player online : Bukkit.getOnlinePlayers())
+					nukePlayer(online, nukeType);
+				return true;
+			}
+			else if(Bukkit.getPlayer(target) != null) return nukePlayer(Bukkit.getPlayer(args[0]), nukeType);
 		}
 		return false;
 	}
 
-	private boolean nukePlayer(final Player player)
+	private boolean nukePlayer(final Player player, final EntityType type)
 	{
 		int count = 0;
 		final Location target = player.getLocation();
@@ -86,13 +69,13 @@ class SquidNukeCommand implements CommandExecutor, Listener
 		{
 			if(exists instanceof LivingEntity)
 			{
-				if(exists.equals(player) || exists.getLocation().distance(target) < 30) continue;
+				if(exists.equals(player) || exists.getLocation().distance(target) < 30 || exists.getLocation().distance(target) > 100) continue;
 				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.instance, new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						launchNuke(false, player, new Location(exists.getWorld(), exists.getLocation().getX(), 0.0 + exists.getLocation().getWorld().getHighestBlockYAt(exists.getLocation()), exists.getLocation().getZ()), new Location(target.getWorld(), target.getX(), 0.0 + target.getWorld().getHighestBlockYAt(target), target.getZ()));
+						launchNuke(false, player, type, new Location(exists.getWorld(), exists.getLocation().getX(), 0.0 + exists.getLocation().getWorld().getHighestBlockYAt(exists.getLocation()), exists.getLocation().getZ()), new Location(target.getWorld(), target.getX(), 0.0 + target.getWorld().getHighestBlockYAt(target), target.getZ()));
 					}
 				}, count * 2);
 				count++;
@@ -115,7 +98,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 		return true;
 	}
 
-	private void launchNuke(final boolean alert, final Player owner, final Location launch, final Location target)
+	private void launchNuke(final boolean alert, final Player owner, final EntityType type, final Location launch, final Location target)
 	{
 		warningSiren(false, launch, target);
 		for(int i = 6; i > 0; i--)
@@ -128,21 +111,13 @@ class SquidNukeCommand implements CommandExecutor, Listener
 				{
 					if(count == 0)
 					{
-						Squid squid = null;
-						launch.getWorld().spawnEntity(launch, EntityType.SQUID);
-						for(Entity entity : launch.getChunk().getEntities())
-						{
-							if(entity instanceof Squid && entity.getLocation().distance(launch) < 1)
-							{
-								squid = (Squid) entity;
-								break;
-							}
-						}
+
+						LivingEntity squid = (LivingEntity) launch.getWorld().spawnEntity(launch, type);
 						squid.setNoDamageTicks(3);
 						NukeControl control = new NukeControl(squid, launch, target);
 						control.startTravel();
 						squids.put(squid.getUniqueId(), owner.getName());
-						owner.sendMessage(ChatColor.YELLOW + "Launch!");
+						owner.sendMessage(ChatColor.DARK_RED + "☣");
 					}
 					else if(alert) owner.sendMessage(ChatColor.GREEN + "" + count + "...");
 				}
@@ -170,9 +145,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 	public void onSquidDeath(EntityDeathEvent event)
 	{
 		if(!squids.containsKey(event.getEntity().getUniqueId())) return;
-		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(squids.get(event.getEntity().getUniqueId()));
 		squids.remove(event.getEntity().getUniqueId());
 		NukeControl.nuke(event.getEntity().getLocation(), true, true);
-		if(offlinePlayer.isOnline()) offlinePlayer.getPlayer().sendMessage(ChatColor.YELLOW + "The nuke has detonated off-target.");
 	}
 }
