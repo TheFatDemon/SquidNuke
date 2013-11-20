@@ -163,7 +163,7 @@ public class NukeControl
 		@Override
 		public void run()
 		{
-			if(control.getNuke().isDead()) return;
+			if(control.getNuke() == null || control.getNuke().isDead()) return;
 			if(control.getNuke().getLocation().distance(control.getCheckPoint()) < 4)
 			{
 				if(!control.getStage().equals(Stage.DECENT)) startNextTravelStage();

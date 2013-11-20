@@ -31,14 +31,24 @@ class SquidNukeCommand implements CommandExecutor
 				}
 			}
 			Player player = (Player) sender;
-			if(target.equalsIgnoreCase("me")) return nukePlayer(player, player, nukeType);
+			if(target.equalsIgnoreCase("me"))
+			{
+				player.sendMessage(ChatColor.DARK_RED + " ☣ LAUNCH ☣");
+				return nukePlayer(player, player, nukeType);
+			}
 			else if(target.equals("*"))
 			{
 				for(Player online : Bukkit.getOnlinePlayers())
 					nukePlayer(player, online, nukeType);
+				player.sendMessage(ChatColor.DARK_RED + " ☣ LAUNCH ☣");
 				return true;
 			}
-			else if(Bukkit.getPlayer(target) != null) return nukePlayer(player, Bukkit.getPlayer(args[0]), nukeType);
+			else if(Bukkit.getPlayer(target) != null)
+			{
+				player.sendMessage(ChatColor.DARK_RED + " ☣ LAUNCH ☣");
+				return nukePlayer(player, Bukkit.getPlayer(args[0]), nukeType);
+			}
+
 		}
 		return false;
 	}
@@ -70,12 +80,10 @@ class SquidNukeCommand implements CommandExecutor
 				if(nearby instanceof Player && !NukeControl.isATarget((Player) nearby))
 				{
 					Player ohshit = (Player) nearby;
-					ohshit.sendMessage(ChatColor.RED + "" + count + " nuclear missiles have targeted your location.");
-					ohshit.sendMessage(ChatColor.DARK_RED + "May God have mercy on your soul.");
+					ohshit.sendMessage(ChatColor.RED + " ⚠ MISSILES DETECTED ⚠");
 				}
 			}
-			player.sendMessage(ChatColor.RED + "" + count + " nuclear missiles have targeted your location.");
-			player.sendMessage(ChatColor.DARK_RED + "May God have mercy on your soul.");
+			player.sendMessage(ChatColor.RED + " ⚠ MISSILES DETECTED ⚠");
 		}
 		return true;
 	}
@@ -100,7 +108,6 @@ class SquidNukeCommand implements CommandExecutor
 						NukeControl control = new NukeControl(squid, launch, target, NukeControl.getTarget(target.getPlayer()));
 						control.startTravel();
 						SquidNuke.squids.put(squid.getUniqueId(), owner.getName());
-						owner.sendMessage(ChatColor.DARK_RED + "☣");
 					}
 					else if(alert) owner.sendMessage(ChatColor.GREEN + "" + count + "...");
 				}
