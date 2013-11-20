@@ -101,7 +101,7 @@ public class NukeControl
 	private static void nukeEffects(Location target, int range, int particles, float offSetY, boolean block, boolean player)
 	{
 
-		if(!player) target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 6F, block, block);
+		if(player) target.getWorld().createExplosion(target.getX(), target.getY() + 3 + offSetY, target.getZ(), 6F, block, block);
 		else
 		{
 			target.getWorld().spigot().playEffect(target, Effect.EXPLOSION_HUGE);
