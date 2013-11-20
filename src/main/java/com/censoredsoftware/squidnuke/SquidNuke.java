@@ -44,7 +44,7 @@ public class SquidNuke extends JavaPlugin implements Listener
 
 	public void loadListeners()
 	{
-		// Todo.
+		getServer().getPluginManager().registerEvents(this, this);
 	}
 
 	public void loadCommands()

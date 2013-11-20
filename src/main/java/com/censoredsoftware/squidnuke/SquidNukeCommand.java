@@ -8,15 +8,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
-class SquidNukeCommand implements CommandExecutor, Listener
+class SquidNukeCommand implements CommandExecutor
 {
-	public SquidNukeCommand()
-	{
-		SquidNuke.PLUGIN.getServer().getPluginManager().registerEvents(this, SquidNuke.PLUGIN);
-	}
-
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
@@ -73,15 +67,15 @@ class SquidNukeCommand implements CommandExecutor, Listener
 		{
 			for(Entity nearby : player.getNearbyEntities(10, 10, 10))
 			{
-				if(nearby instanceof Player)
+				if(nearby instanceof Player && !NukeControl.isATarget((Player) nearby))
 				{
 					Player ohshit = (Player) nearby;
-					ohshit.sendMessage(ChatColor.YELLOW + "" + count + " nuclear missiles have targeted your location.");
-					ohshit.sendMessage(ChatColor.YELLOW + "May God have mercy on your soul.");
+					ohshit.sendMessage(ChatColor.RED + "" + count + " nuclear missiles have targeted your location.");
+					ohshit.sendMessage(ChatColor.DARK_RED + "May God have mercy on your soul.");
 				}
 			}
-			player.sendMessage(ChatColor.YELLOW + "" + count + " nuclear missiles have targeted your location.");
-			player.sendMessage(ChatColor.YELLOW + "May God have mercy on your soul.");
+			player.sendMessage(ChatColor.RED + "" + count + " nuclear missiles have targeted your location.");
+			player.sendMessage(ChatColor.DARK_RED + "May God have mercy on your soul.");
 		}
 		return true;
 	}

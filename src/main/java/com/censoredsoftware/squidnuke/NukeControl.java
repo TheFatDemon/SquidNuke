@@ -1,13 +1,18 @@
 package com.censoredsoftware.squidnuke;
 
+import com.google.common.collect.Sets;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.Set;
+
 public class NukeControl
 {
+	private static Set<String> targets = Sets.newHashSet();
+
 	private LivingEntity squid;
 	private OfflinePlayer target;
 	private Stage stage;
@@ -20,6 +25,7 @@ public class NukeControl
 		stage = Stage.LAUNCH;
 		startPoint = launchPoint;
 		this.targetLocation = targetLocation;
+		targets.add(target.getName());
 		calculateNextCheckpoint();
 	}
 
@@ -80,6 +86,11 @@ public class NukeControl
 	public static Location getTarget(Player target)
 	{
 		return new Location(target.getWorld(), target.getLocation().getX(), 0.0 + target.getWorld().getHighestBlockYAt(target.getLocation()), target.getLocation().getZ());
+	}
+
+	public static boolean isATarget(OfflinePlayer player)
+	{
+		return targets.contains(player.getName());
 	}
 
 	public static void nuke(final Location target, final boolean block, final boolean player)
@@ -161,6 +172,7 @@ public class NukeControl
 					SquidNuke.squids.remove(control.getNuke().getUniqueId());
 					NukeControl.nuke(control.getNuke().getLocation(), SquidNuke.blockDamage, SquidNuke.playerDamage);
 					control.getNuke().remove();
+					targets.remove(control.getTarget().getName());
 				}
 			}
 			else
