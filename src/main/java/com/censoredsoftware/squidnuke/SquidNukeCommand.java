@@ -1,9 +1,6 @@
 package com.censoredsoftware.squidnuke;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -40,19 +37,19 @@ class SquidNukeCommand implements CommandExecutor, Listener
 				}
 			}
 			Player player = (Player) sender;
-			if(target.equalsIgnoreCase("me")) return nukePlayer(player, nukeType);
+			if(target.equalsIgnoreCase("me")) return nukePlayer(player, player, nukeType);
 			else if(target.equals("*"))
 			{
 				for(Player online : Bukkit.getOnlinePlayers())
-					nukePlayer(online, nukeType);
+					nukePlayer(player, online, nukeType);
 				return true;
 			}
-			else if(Bukkit.getPlayer(target) != null) return nukePlayer(Bukkit.getPlayer(args[0]), nukeType);
+			else if(Bukkit.getPlayer(target) != null) return nukePlayer(player, Bukkit.getPlayer(args[0]), nukeType);
 		}
 		return false;
 	}
 
-	private boolean nukePlayer(final Player player, final EntityType type)
+	private boolean nukePlayer(final Player owner, final Player player, final EntityType type)
 	{
 		int count = 0;
 		final Location target = player.getLocation();
@@ -66,7 +63,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 					@Override
 					public void run()
 					{
-						launchNuke(false, player, type, new Location(exists.getWorld(), exists.getLocation().getX(), 0.0 + exists.getLocation().getWorld().getHighestBlockYAt(exists.getLocation()), exists.getLocation().getZ()), new Location(target.getWorld(), target.getX(), 0.0 + target.getWorld().getHighestBlockYAt(target), target.getZ()));
+						launchNuke(false, owner, type, new Location(exists.getWorld(), exists.getLocation().getX(), 0.0 + exists.getLocation().getWorld().getHighestBlockYAt(exists.getLocation()), exists.getLocation().getZ()), player);
 					}
 				}, count * 2);
 				count++;
@@ -89,9 +86,9 @@ class SquidNukeCommand implements CommandExecutor, Listener
 		return true;
 	}
 
-	private void launchNuke(final boolean alert, final Player owner, final EntityType type, final Location launch, final Location target)
+	private void launchNuke(final boolean alert, final Player owner, final EntityType type, final Location launch, final OfflinePlayer target)
 	{
-		warningSiren(false, launch, target);
+		warningSiren(false, launch, target.getPlayer().getLocation());
 		for(int i = 6; i > 0; i--)
 		{
 			final int count = i - 1;
@@ -106,7 +103,7 @@ class SquidNukeCommand implements CommandExecutor, Listener
 						squid.setNoDamageTicks(3);
 						squid.setCustomName("Nuke");
 						squid.setCustomNameVisible(true);
-						NukeControl control = new NukeControl(squid, launch, target);
+						NukeControl control = new NukeControl(squid, launch, target, NukeControl.getTarget(target.getPlayer()));
 						control.startTravel();
 						SquidNuke.squids.put(squid.getUniqueId(), owner.getName());
 						owner.sendMessage(ChatColor.DARK_RED + "☣");

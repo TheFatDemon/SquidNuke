@@ -2,6 +2,7 @@ package com.censoredsoftware.squidnuke;
 
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -55,7 +56,7 @@ public class NukeControl
 	private void calculateNextCheckpoint()
 	{
 		this.stage = stage.getNext();
-		if(target.isOnline()) targetLocation = target.getPlayer().getLocation();
+		if(target.isOnline()) targetLocation = getTarget(target.getPlayer());
 		switch(stage)
 		{
 			case ASCENT:
@@ -74,6 +75,11 @@ public class NukeControl
 				break;
 			}
 		}
+	}
+
+	public static Location getTarget(Player target)
+	{
+		return new Location(target.getWorld(), target.getLocation().getX(), 0.0 + target.getWorld().getHighestBlockYAt(target.getLocation()), target.getLocation().getZ());
 	}
 
 	public static void nuke(final Location target, final boolean block, final boolean player)
