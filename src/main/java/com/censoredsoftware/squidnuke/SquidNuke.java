@@ -1,7 +1,10 @@
 package com.censoredsoftware.squidnuke;
 
 import com.censoredsoftware.squidnuke.util.Configs;
+import com.censoredsoftware.squidnuke.util.Randoms;
 import com.google.common.collect.Maps;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -14,7 +17,7 @@ import java.util.UUID;
 public class SquidNuke extends JavaPlugin implements Listener
 {
 	public static SquidNuke PLUGIN;
-	public static boolean blockDamage, playerDamage;
+	public static boolean blockDamage, playerDamage, nukeCreeper;
 	protected static Map<UUID, String> squids = Maps.newHashMap();
 
 	/**
@@ -26,6 +29,7 @@ public class SquidNuke extends JavaPlugin implements Listener
 		PLUGIN = this;
 		blockDamage = Configs.getSettingBoolean("damage.block");
 		playerDamage = Configs.getSettingBoolean("damage.player");
+		nukeCreeper = Configs.getSettingBoolean("natural.nuke_creeper");
 
 		loadListeners();
 		loadCommands();
@@ -55,8 +59,19 @@ public class SquidNuke extends JavaPlugin implements Listener
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSquidDeath(EntityDeathEvent event)
 	{
-		if(!squids.containsKey(event.getEntity().getUniqueId())) return;
-		squids.remove(event.getEntity().getUniqueId());
-		NukeControl.nuke(event.getEntity().getLocation(), blockDamage, playerDamage);
+		if(squids.containsKey(event.getEntity().getUniqueId()))
+		{
+			squids.remove(event.getEntity().getUniqueId());
+			NukeControl.nuke(event.getEntity().getLocation(), blockDamage, playerDamage);
+			return;
+		}
+		if(nukeCreeper && event.getEntity().getType().equals(EntityType.CREEPER) && Randoms.generateIntRange(1, 100) > 75)
+		{
+			Creeper creeper = (Creeper) event.getEntity();
+			creeper.setPowered(true);
+			creeper.setCustomName("Nuke");
+			creeper.setCustomNameVisible(true);
+			NukeControl.nuke(creeper.getLocation(), true, true);
+		}
 	}
 }

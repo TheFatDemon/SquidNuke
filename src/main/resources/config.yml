@@ -2,3 +2,5 @@
 damage:
     block: false
     player: false
+natural:
+    nuke_creeper: true
