@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
@@ -63,15 +64,19 @@ public class SquidNuke extends JavaPlugin implements Listener
 		{
 			squids.remove(event.getEntity().getUniqueId());
 			NukeControl.nuke(event.getEntity().getLocation(), blockDamage, playerDamage);
-			return;
 		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onCreeperExplode(EntityExplodeEvent event)
+	{
 		if(nukeCreeper && event.getEntity().getType().equals(EntityType.CREEPER) && Randoms.generateIntRange(1, 100) > 75)
 		{
 			Creeper creeper = (Creeper) event.getEntity();
 			creeper.setPowered(true);
 			creeper.setCustomName("Nuke");
 			creeper.setCustomNameVisible(true);
-			NukeControl.nuke(creeper.getLocation(), true, true);
+			NukeControl.nuke(creeper.getLocation(), blockDamage, playerDamage);
 		}
 	}
 }
