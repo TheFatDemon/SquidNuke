@@ -5,6 +5,7 @@ import com.censoredsoftware.squidnuke.util.Randoms;
 import com.google.common.collect.Maps;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
