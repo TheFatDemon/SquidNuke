@@ -127,26 +127,20 @@ public class NukeControl
 
 	public enum Stage
 	{
-		LAUNCH(0), ASCENT(1), TRAVEL(2), DECENT(3);
-
-		private int order;
-
-		private Stage(int order)
-		{
-			this.order = order;
-		}
+		LAUNCH, ASCENT, TRAVEL, DECENT;
 
 		public Stage getNext()
 		{
-			return get(this.order + 1);
+			return get(ordial() + 1);
 		}
 
 		private static Stage get(int order)
 		{
-			for(Stage stage : Stage.values())
-			{
-				if(stage.order == order) return stage;
+			try {
+				return values()[order];
 			}
+			catch(Exception ignroed)
+			{}
 			return null;
 		}
 	}
