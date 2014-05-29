@@ -60,6 +60,7 @@ public class SquidNuke extends JavaPlugin implements Listener
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSquidDeath(EntityDeathEvent event)
 	{
+		if(event.getEntity() instanceof Player) return;
 		if(squids.containsKey(event.getEntity().getUniqueId()))
 		{
 			squids.remove(event.getEntity().getUniqueId());
