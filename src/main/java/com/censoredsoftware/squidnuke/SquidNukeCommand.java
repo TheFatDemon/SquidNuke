@@ -8,9 +8,17 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 class SquidNukeCommand implements CommandExecutor
 {
+	private final Plugin plugin;
+
+	SquidNukeCommand(Plugin plugin)
+	{
+		this.plugin = plugin;
+	}
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
@@ -62,7 +70,7 @@ class SquidNukeCommand implements CommandExecutor
 			if(exists instanceof LivingEntity)
 			{
 				if(exists.equals(player) || exists.getLocation().distance(target) < 30 || exists.getLocation().distance(target) > 100) continue;
-				Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new Runnable()
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 				{
 					@Override
 					public void run()
@@ -94,7 +102,7 @@ class SquidNukeCommand implements CommandExecutor
 		for(int i = 6; i > 0; i--)
 		{
 			final int count = i - 1;
-			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new Runnable()
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 			{
 				@Override
 				public void run()
@@ -105,9 +113,9 @@ class SquidNukeCommand implements CommandExecutor
 						squid.setNoDamageTicks(3);
 						squid.setCustomName("Nuke");
 						squid.setCustomNameVisible(true);
-						NukeControl control = new NukeControl(squid, launch, target, NukeControl.getTarget(target.getPlayer()));
+						NukeControl control = new NukeControl(plugin, squid, launch, target, NukeControl.getTarget(target.getPlayer()));
 						control.startTravel();
-						SquidNuke.squids.put(squid.getUniqueId(), owner.getName());
+						SquidNuke.squids.add(squid.getUniqueId());
 					}
 					else if(alert) owner.sendMessage(ChatColor.GREEN + "" + count + "...");
 				}
@@ -115,11 +123,11 @@ class SquidNukeCommand implements CommandExecutor
 		}
 	}
 
-	private static void warningSiren(final boolean alertLaunch, final Location launch, final Location target)
+	private void warningSiren(final boolean alertLaunch, final Location launch, final Location target)
 	{
 		for(int i = 0; i < 4; i++)
 		{
-			Bukkit.getScheduler().scheduleSyncDelayedTask(SquidNuke.PLUGIN, new Runnable()
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 			{
 				@Override
 				public void run()
