@@ -132,8 +132,8 @@ class SquidNukeCommand implements CommandExecutor
 				@Override
 				public void run()
 				{
-					if(alertLaunch) launch.getWorld().playSound(launch, Sound.AMBIENCE_CAVE, 2F, 2F);
-					target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 2F, 2F);
+					if(alertLaunch) launch.getWorld().playSound(launch, Sound.AMBIENT_CAVE, 2F, 2F);
+					target.getWorld().playSound(target, Sound.AMBIENT_CAVE, 2F, 2F);
 				}
 			}, i * 30);
 		}

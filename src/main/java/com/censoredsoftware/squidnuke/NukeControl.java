@@ -119,9 +119,9 @@ public class NukeControl
 		else
 		{
 			target.getWorld().spigot().playEffect(target, Effect.EXPLOSION_HUGE);
-			target.getWorld().playSound(target, Sound.EXPLODE, 1F, 1F);
+			target.getWorld().playSound(target, Sound.ENTITY_GENERIC_EXPLODE, 1F, 1F);
 		}
-		target.getWorld().playSound(target, Sound.AMBIENCE_CAVE, 1F, 1F);
+		target.getWorld().playSound(target, Sound.AMBIENT_CAVE, 1F, 1F);
 		target.getWorld().spigot().playEffect(target, Effect.CLOUD, 1, 1, 0F, 3F + (float) offSetY, 3F, 1F, particles, range);
 		target.getWorld().spigot().playEffect(target, Effect.LAVA_POP, 1, 1, 0F, 3F + (float) offSetY, 0F, 1F, particles, range);
 		target.getWorld().spigot().playEffect(target, Effect.SMOKE, 1, 1, 0F, 3F + (float) offSetY, 0F, 1F, particles, range);

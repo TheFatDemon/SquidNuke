@@ -6,7 +6,7 @@
 
     <groupId>com.censoredsoftware</groupId>
     <artifactId>SquidNuke</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 
     <name>SquidNuke</name>
     <description>SquidNuke for Bukkit/Spigot Minecraft Servers.</description>
@@ -27,7 +27,7 @@
 
     <properties> <!-- It is important to keep up to date manually. -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spigot.version>1.7.9-R0.2-SNAPSHOT</spigot.version>
+        <spigot.version>1.9-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <developers>
@@ -48,8 +48,8 @@
 
     <repositories>
         <repository>
-            <id>md_5-releases</id>
-            <url>http://repo.md-5.net/content/repositories/snapshots</url>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
     </repositories>
 
@@ -58,9 +58,7 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>${spigot.version}</version>
-            <scope>compile</scope>
-            <type>jar</type>
-            <optional>false</optional>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
