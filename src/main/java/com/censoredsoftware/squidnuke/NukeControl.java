@@ -70,17 +70,26 @@ public class NukeControl
 		{
 			case ASCENT:
 			{
-				this.checkpoint = new Location(startPoint.getWorld(), startPoint.getX() > targetLocation.getX() ? startPoint.getX() - 10 : startPoint.getX() + 10, startPoint.getY() + 50 > 248 ? 248 : startPoint.getY() + 50, startPoint.getZ() > targetLocation.getZ() ? startPoint.getZ() - 10 : startPoint.getZ() + 10);
+				this.checkpoint = new Location(startPoint.getWorld(),
+						startPoint.getX() > targetLocation.getX() ? startPoint.getX() - 10 : startPoint.getX() + 10,
+						startPoint.getY() + 50 > 248 ? 248 : startPoint.getY() + 50,
+						startPoint.getZ() > targetLocation.getZ() ? startPoint.getZ() - 10 : startPoint.getZ() + 10);
 				break;
 			}
 			case TRAVEL:
 			{
-				this.checkpoint = new Location(targetLocation.getWorld(), checkpoint.getX() > targetLocation.getX() ? targetLocation.getX() + 10 : targetLocation.getX() - 10, checkpoint.getY() + 50 > 248 ? 248 : checkpoint.getY() + 50, checkpoint.getZ() > targetLocation.getZ() ? targetLocation.getZ() + 10 : targetLocation.getZ() - 10);
+				this.checkpoint = new Location(targetLocation.getWorld(),
+						checkpoint.getX() > targetLocation.getX() ? targetLocation.getX() + 10 : targetLocation.getX() - 10,
+						checkpoint.getY() + 50 > 248 ? 248 : checkpoint.getY() + 50,
+						checkpoint.getZ() > targetLocation.getZ() ? targetLocation.getZ() + 10 : targetLocation.getZ() - 10);
 				break;
 			}
 			case DECENT:
 			{
-				this.checkpoint = new Location(targetLocation.getWorld(), targetLocation.getX(), targetLocation.getY(), targetLocation.getZ());
+				this.checkpoint = new Location(targetLocation.getWorld(),
+						targetLocation.getX(),
+						targetLocation.getY(),
+						targetLocation.getZ());
 				break;
 			}
 		}

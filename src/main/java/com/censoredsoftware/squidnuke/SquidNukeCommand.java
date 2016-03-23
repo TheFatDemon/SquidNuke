@@ -69,7 +69,7 @@ class SquidNukeCommand implements CommandExecutor
 		{
 			if(exists instanceof LivingEntity)
 			{
-				if(exists.equals(player) || exists.getLocation().distance(target) < 30 || exists.getLocation().distance(target) > 100) continue;
+				if(exists.equals(player) || exists.getLocation().distance(target) < 20) continue;
 				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 				{
 					@Override
